@@ -1,0 +1,47 @@
+<VirtualHost *:80>
+ ServerAdmin webmaster@centos.org
+ ServerName mirror.centos.org
+ ServerAlias {{ inventory_hostname }}
+ DocumentRoot {{ mirror_local_path }}
+ CustomLog logs/mirror.centos.org_access.log combined
+ ErrorLog logs/mirror.centos.org_error.log
+ AddDescription "{{ inventory_hostname }}" server.id
+ ReadmeName /FOOTER.html
+ HeaderName /HEADER_AD.html
+ IndexIgnore .??* *~ *# HEADER* README* RCS CVS *,v *,t FOOTER.html robots.txt
+
+ Header always set X-Xss-Protection "1; mode=block"
+ Header always set X-Content-Type-Options "nosniff"
+ Header always set Referrer-Policy "same-origin"
+ Header always set X-Frame-Options "SAMEORIGIN"
+
+#Rewrite Rules
+ RewriteEngine on
+ ReWriteRule "^/(?:centos|centos-[34567])/(.*)/isos/(.*)/(.*\.iso)$" http://isoredirect.centos.org/centos/$1/isos/$2/$3
+ ReWriteRule "^/(?:centos|centos-[34567])/(.*)/isos/(.*)/$" http://isoredirect.centos.org/centos/$1/isos/$2/
+ ReWriteRule "^/(?:altarch)/(.*)/isos/(.*)/(.*\.iso)$" http://isoredirect.centos.org/altarch/$1/isos/$2/$3
+ ReWriteRule "^/(?:altarch)/(.*)/isos/(.*)/(.*\.raw.xz)$" http://isoredirect.centos.org/altarch/$1/isos/$2/$3
+ ReWriteRule "^/(?:altarch)/(.*)/isos/(.*)/$" http://isoredirect.centos.org/altarch/$1/isos/$2/
+ #RedirectMatch "(?<!boot)\.iso$" http://mirror.centos.org/mirrorscripts/notonmirror.html
+
+<Location "/.well-known/">
+    ProxyPass "http://cephas.centos.org/.well-known/"
+</Location>
+
+
+#Directory Permissions
+ <Directory "/home/centos">
+  AllowOverride Indexes
+  Options Indexes FollowSymLinks 
+  <IfVersion < 2.4>
+    Order allow,deny
+    Allow from all
+  </IfVersion>
+  <IfVersion >= 2.4>
+    IndexOptions FancyIndexing VersionSort NameWidth=* HTMLTable Charset=UTF-8
+    Require all granted
+  </IfVersion>
+ </Directory>
+
+</VirtualHost>
+

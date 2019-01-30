@@ -1,0 +1,55 @@
+#!/bin/bash
+
+#
+# CentOS update msync/rsync ACL script
+# Called by : cron, managed by: Ansible
+# purposes: download the generated template from IP addresses coming
+#  from mysql DB for external mirrors (dynamically generated)
+#
+
+PATH=$PATH:/usr/local/bin:/sbin:/usr/sbin/
+
+remote_gpg_file="{{ mirror_acl_url }}"
+remote_checksum_file="{{ mirror_acl_url }}.checksum"
+local_checksum_file="/var/tmp/01_CentOS.conf.gpg.checksum"
+new_checksum_file="/var/tmp/01_CentOS.conf.gpg.checksum.new"
+local_gpg_file="/var/tmp/01_CentOS.conf.gpg"
+gpg_passphrase="{{ mirror_acl_gpg_key }}"
+target_conf_file="/etc/rsyncd.d/01_CentOS.conf"
+log_file="/var/log/centos_update_acl.log"
+
+function f_log() {
+        echo "[*] $(date +%Y%m%d-%H:%M) : -> $*" >> $log_file
+}
+
+function f_errorcheck() {
+ if [ "$?" = "0" ]; then
+   f_log "$* : PASS => continuing ..."
+ else
+   f_log "$* : FAIL => exiting ..."
+   exit 1
+ fi
+}
+
+
+curl --location --silent --fail -H 'Cache-Control: no-cache' ${remote_checksum_file} -o ${new_checksum_file}
+
+f_errorcheck "Downloading ${remote_checksum_file}"
+
+previous_checksum=$(awk '{print $1}' ${local_checksum_file})
+new_checksum=$(awk '{print $1}' ${new_checksum_file})
+
+if [ "${new_checksum}" == "${previous_checksum}" ] ; then
+  f_log "checksum ${new_checksum} is the same as before ... exiting"
+else
+  /bin/rm ${local_gpg_file}
+  curl --silent --fail -H 'Cache-Control: no-cache' ${remote_gpg_file} -o ${local_gpg_file}
+  f_errorcheck "Downloading ${remote_gpg_file}"
+  test "$(sha256sum ${local_gpg_file}|awk '{print $1}')" == "${new_checksum}"
+  f_errorcheck "Verifying sha256sum for downloaded file ${local_gpg_file}"
+  gpg --passphrase ${gpg_passphrase} --batch --yes -d ${local_gpg_file} 2>/dev/null >${target_conf_file}
+  f_errorcheck "GPG decrypt operation for ${local_gpg_file}"
+  cat /etc/rsyncd.d/*.conf > /etc/rsyncd.conf
+  f_log "Writing ${new_checksum} as current checksum"
+  echo "${new_checksum}" > ${local_checksum_file}   
+fi

@@ -1,0 +1,13 @@
+module centos-msync-rsyncd 1.0;
+
+require {
+        type shell_exec_t;
+        type bin_t;
+        type rsync_t;
+        class file { getattr execute execute_no_trans };
+}
+
+#============= rsync_t ==============
+allow rsync_t bin_t:file { execute execute_no_trans };
+allow rsync_t shell_exec_t:file { execute execute_no_trans };
+

@@ -1,0 +1,34 @@
+# default variables for mirror role
+
+# Full rsync path::module to use to rsync centos mirror content from
+mirror_rsync_from: node1.centos.org
+mirror_rsync_from_module: centos-full
+mirror_rsync_from_fallback: node0.centos.org
+
+# default path where to sync content to
+mirror_local_path: /home/centos/
+
+# Default user owning all the files
+mirror_local_user: centos
+
+# Do we also want to become member of the msync network
+# So opening up rsyncd to oustide world to let them sync from us 
+mirror_rsyncd: True
+
+# We'll parse inventory to allow some IPs based on hostgroup-role-mirror vars
+# But we can also add other ones (outside of ansible for example)
+mirror_rsyncd_allow_from:
+  - 192.168.1.1
+  - 172.16.31.230
+
+# GPG symmetric key used to decrypt the file generated dynamically by mirror crawler for ACL rights
+# Obviously the wrong one in the default variables here for the role
+mirror_acl_gpg_key: eq6xVZ4bdpgtGfwnqvr4T0SK
+# Full path/URI to the .gpg files with ACLs
+mirror_acl_url: https://node99.centos.org/01_CentOS.conf.gpg
+
+# Zabbix/monitoring part
+mirror_zabbix_templates:
+  - Template CentOS Msync server
+mirror_zabbix_groups:
+  - CentOS Msync servers

@@ -1,0 +1,47 @@
+#!/bin/bash
+
+cd /home/{{ mirror_local_user }}-scripts
+SYNCTIME=`date +%Y%m%d%H%M`
+lockfile="/home/{{ mirror_local_user }}-scripts/rsync-master.pid"
+running="yes"
+
+do_rsync() {
+
+>/dev/null 2>&1 >/dev/tcp/$1/873 && export upstream_srv="$1" || export upstream_srv="{{ mirror_rsync_from_fallback }}"
+
+rsync --force --partial --exclude ".~tmp~" --exclude ".*iso.*" --exclude ".*.rpm.*" --exclude FOOTER.html --delay-updates --exclude repodata --exclude headers --timeout=2400 -avzH $upstream_srv::{{ mirror_rsync_from_module }}/ {{ mirror_local_path }}  > /home/{{ mirror_local_user }}-scripts/$SYNCTIME.log 2>&1
+rsync --force --partial --exclude ".~tmp~" --exclude ".*iso.*" --exclude ".*.rpm.*" --exclude FOOTER.html --delay-updates --delete --timeout=2400 -avzH $upstream_srv::{{ mirror_rsync_from_module }}/ {{ mirror_local_path }}  >> /home/{{ mirror_local_user }}-scripts/$SYNCTIME.log 2>&1
+
+for log in $(ls *.log | egrep -v "withdvd|hardlink|vault|beta|debug")
+  do
+   if [ "$log" != "$SYNCTIME.log" ]; then
+    rm -f $log
+   fi
+  done
+
+}
+
+if [ -z $1 ]; then 
+  echo "need a machine name to rsync from as the first param to this script"
+  exit 1
+fi
+
+if [ ! -e ${lockfile} ]; then
+   trap 'rm -f "$lockfile"; exit $?' INT TERM EXIT
+   echo "$$" > $lockfile
+   do_rsync $1 
+
+   rm -f "$lockfile"
+   trap - INT TERM EXIT
+else
+   proc=$(cat ${lockfile})
+   if [ $(ps -eopid | grep -c $proc) -eq 1 ]; then
+     #still running
+     echo "Old process still running"
+     exit 27
+   else
+     #old process dead
+     rm -f ${lockfile}
+   fi
+fi
+

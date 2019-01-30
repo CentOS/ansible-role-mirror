@@ -1,0 +1,21 @@
+- name: Ensuring we have local unprivileged user owning mirror content
+  user:
+    name: "{{ mirror_local_user }}"
+    comment: "Local CentOS mirror user"
+    group: "{{ mirror_local_user }}"
+    home: "/home/{{ mirror_local_user }}-home/"
+
+- name: Ensuring we have a place to store scripts (legacy compat)
+  file:
+    path: "/home/{{ mirror_local_user }}-scripts"
+    state: directory
+    owner: "{{ mirror_local_user }}"
+    group: "{{ mirror_local_user }}"
+
+- name: Ensuring we have a place to store mirror content
+  file:
+    path: "{{ mirror_local_path }}"
+    state: directory
+    owner: "{{ mirror_local_user }}"
+    group: "{{ mirror_local_user }}"
+    mode: 0755

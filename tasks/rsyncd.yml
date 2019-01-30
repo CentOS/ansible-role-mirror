@@ -1,0 +1,41 @@
+- import_role:
+    name: rsyncd
+
+- name: Dropping the rsyncd snippet for mirror
+  template:
+    src: 02_centosfull.conf.j2
+    dest: /etc/rsyncd.d/02_centosfull.conf
+  notify:
+    - rebuild_rsyncd
+
+- name: Needed selinux booleans for rsyncd
+  seboolean:
+    name: rsync_export_all_ro
+    persistent: yes
+    state: yes
+
+- name: Distributing custom selinux policies
+  copy: 
+    src: "selinux/{{ ansible_distribution_version[0] }}/{{ item }}" 
+    dest: "/etc/selinux/centos/{{ item }}"
+  register: sepolicy
+  with_items:
+    - centos-msync-rsyncd.pp
+
+- name: reload custom selinux files
+  shell: /usr/sbin/semodule -u "/etc/selinux/centos/centos-msync-rsyncd.pp"
+  when: ansible_selinux.status == "enabled" and sepolicy.changed
+
+- name: ACL update script for the allowed external mirrors (ipv4/ipv6)
+  template:
+    src: update_msync_acl.j2
+    dest: /usr/libexec/centos/update_msync_acl
+    mode: 0750
+    owner: root
+
+- name: Cron job to retrieve and apply different ACL for rsync (if needed)
+  cron:
+    name: Rsync ACL update for mirrors
+    job: "/usr/libexec/centos/update_msync_acl"
+    minute: "*/4"
+    user: root

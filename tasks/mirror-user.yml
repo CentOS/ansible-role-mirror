@@ -2,7 +2,6 @@
   user:
     name: "{{ mirror_local_user }}"
     comment: "Local CentOS mirror user"
-    group: "{{ mirror_local_user }}"
     home: "/home/{{ mirror_local_user }}-home/"
 
 - name: Ensuring we have a place to store scripts (legacy compat)

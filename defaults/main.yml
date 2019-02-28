@@ -21,6 +21,11 @@ mirror_rsyncd_allow_from:
   - 192.168.1.1
   - 172.16.31.230
 
+# Do we also be a full internal/public mirror (so with no RewriteRules for .iso sending to isoredirect)
+# If so we just need to enable and declare public hostname (non centos.org)
+mirror_external_vhost: False
+mirror_external_hostname: centos-mirror.yourdomain.com
+
 # GPG symmetric key used to decrypt the file generated dynamically by mirror crawler for ACL rights
 # Obviously the wrong one in the default variables here for the role
 mirror_acl_gpg_key: eq6xVZ4bdpgtGfwnqvr4T0SK

@@ -39,8 +39,12 @@
     job: "/home/{{ mirror_local_user }}-scripts/rsync-master-full {{ mirror_rsync_from }} > /dev/null 2>&1"
     minute: "*/12"
     user: "{{ mirror_local_user }}"
+  tags:
+    - cron
 
 - include_tasks: rsyncd.yml
   when: mirror_rsyncd
+  tags:
+    - rsyncd
 
 - include_tasks: monitoring.yml  

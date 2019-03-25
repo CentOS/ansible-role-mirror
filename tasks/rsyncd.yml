@@ -7,6 +7,8 @@
     dest: /etc/rsyncd.d/02_centosfull.conf
   notify:
     - rebuild_rsyncd
+  tags:
+    - rsyncd
 
 - name: Needed selinux booleans for rsyncd
   seboolean:

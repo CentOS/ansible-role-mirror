@@ -17,8 +17,8 @@
 
 #Rewrite Rules
  RewriteEngine on
- ReWriteRule "^/(?:centos|centos-[34567])/(.*)/isos/(.*)/(.*\.iso)$" http://isoredirect.centos.org/centos/$1/isos/$2/$3
- ReWriteRule "^/(?:centos|centos-[34567])/(.*)/isos/(.*)/$" http://isoredirect.centos.org/centos/$1/isos/$2/
+ ReWriteRule "^/(?:centos|centos-[345678])/(.*)/isos/(.*)/(.*\.iso)$" http://isoredirect.centos.org/centos/$1/isos/$2/$3
+ ReWriteRule "^/(?:centos|centos-[345678])/(.*)/isos/(.*)/$" http://isoredirect.centos.org/centos/$1/isos/$2/
  ReWriteRule "^/(?:altarch)/(.*)/isos/(.*)/(.*\.iso)$" http://isoredirect.centos.org/altarch/$1/isos/$2/$3
  ReWriteRule "^/(?:altarch)/(.*)/isos/(.*)/(.*\.raw.xz)$" http://isoredirect.centos.org/altarch/$1/isos/$2/$3
  ReWriteRule "^/(?:altarch)/(.*)/isos/(.*)/$" http://isoredirect.centos.org/altarch/$1/isos/$2/

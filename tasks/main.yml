@@ -9,6 +9,8 @@
     dest: /etc/httpd/conf.d/10_mirror_msync.conf
   notify:
     - restart_httpd
+  tags:
+    - httpd
 
 - name: Adding specific vhost (only for also public external mirror role)
   template:

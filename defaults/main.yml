@@ -11,6 +11,21 @@ mirror_local_path: /home/centos/
 # Default user owning all the files
 mirror_local_user: centos
 
+ 
+# If we want to have some other snippet in httpd conf
+mirror_httpd_snippet: |
+  # This is a snippet block coming from mirror_httpd_snippet var
+
+# If we want to have specific RewriteRules that we can also override
+mirror_httpd_rewrite_rules: |
+  # This is a RewriteRules block comming from mirror_httpd_rewrite_rules var
+  RewriteEngine on
+  ReWriteRule "^/(?:centos|centos-[345678])/(.*)/isos/(.*)/(.*\.iso)$" http://isoredirect.centos.org/centos/$1/isos/$2/$3
+  ReWriteRule "^/(?:centos|centos-[345678])/(.*)/isos/(.*)/$" http://isoredirect.centos.org/centos/$1/isos/$2/
+  ReWriteRule "^/(?:altarch)/(.*)/isos/(.*)/(.*\.iso)$" http://isoredirect.centos.org/altarch/$1/isos/$2/$3
+  ReWriteRule "^/(?:altarch)/(.*)/isos/(.*)/(.*\.raw.xz)$" http://isoredirect.centos.org/altarch/$1/isos/$2/$3
+  ReWriteRule "^/(?:altarch)/(.*)/isos/(.*)/$" http://isoredirect.centos.org/altarch/$1/isos/$2/
+ 
 # Do we also want to become member of the msync network
 # So opening up rsyncd to oustide world to let them sync from us 
 mirror_rsyncd: True

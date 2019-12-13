@@ -2,6 +2,8 @@
 
 - import_role:
     name: httpd
+  vars:
+    httpd_html_autoindex_title: "CentOS Mirror"
 
 - name: Adding vhost file
   template:

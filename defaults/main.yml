@@ -26,6 +26,15 @@ mirror_httpd_rewrite_rules: |
   ReWriteRule "^/(?:altarch)/(.*)/isos/(.*)/(.*\.raw.xz)$" http://isoredirect.centos.org/altarch/$1/isos/$2/$3
   ReWriteRule "^/(?:altarch)/(.*)/isos/(.*)/$" http://isoredirect.centos.org/altarch/$1/isos/$2/
  
+# Some message to be displayed on html pages
+mirror_httpd_header: |
+  <div class="alert alert-success" role="alert">
+  This directory tree contains current CentOS Linux and Stream releases.<br>
+  For archived content, see <a href="http://vault.centos.org">Vault mirror</a>.<br>
+  For debuginfo packages, see <a href="http://debuginfo.centos.org">Debuginfo mirror</a>
+  </div>
+
+
 # Do we also want to become member of the msync network
 # So opening up rsyncd to oustide world to let them sync from us 
 mirror_rsyncd: True

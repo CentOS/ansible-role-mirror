@@ -4,6 +4,7 @@
     name: httpd
   vars:
     httpd_html_autoindex_title: "CentOS Mirror"
+    httpd_html_autoindex_content: "{{ mirror_httpd_header }}"
 
 - name: Adding vhost file
   template:

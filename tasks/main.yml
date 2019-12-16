@@ -11,7 +11,7 @@
     src: 10_mirror_msync.conf.j2
     dest: /etc/httpd/conf.d/10_mirror_msync.conf
   notify:
-    - restart_httpd
+    - reload_httpd
   tags:
     - httpd
 
@@ -21,7 +21,7 @@
     dest: /etc/httpd/conf.d/11_mirror_public.conf
   when: mirror_external_vhost  
   notify:
-    - restart_httpd
+    - reload_httpd
  
 - name: Ensuring some selinux booleans are enabled
   seboolean:

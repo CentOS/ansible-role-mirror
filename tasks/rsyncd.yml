@@ -5,6 +5,7 @@
   template:
     src: 02_centosfull.conf.j2
     dest: /etc/rsyncd.d/02_centosfull.conf
+    mode: 0644
   notify:
     - rebuild_rsyncd
   tags:

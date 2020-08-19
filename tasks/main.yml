@@ -10,6 +10,7 @@
   template:
     src: 10_mirror_msync.conf.j2
     dest: /etc/httpd/conf.d/10_mirror_msync.conf
+    mode: 0644
   notify:
     - reload_httpd
   tags:
@@ -19,6 +20,7 @@
   template:
     src: 11_mirror_public.conf.j2
     dest: /etc/httpd/conf.d/11_mirror_public.conf
+    mode: 0644
   when: mirror_external_vhost  
   notify:
     - reload_httpd

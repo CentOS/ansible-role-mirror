@@ -2,3 +2,8 @@
 # called by Zabbix to calculate difference between rsync operations
 
 zabbix_sender -c /etc/zabbix/zabbix_agentd.conf -k msync.diff -o $(( $(date +%s) - $(cat {{ mirror_local_path }}/TIME) )) >/dev/null
+
+{% if mirror_stream_content %}
+zabbix_sender -c /etc/zabbix/zabbix_agentd.conf -k msync.stream.diff -o $(( $(date +%s) - $(cat {{ mirror_stream_local_path }}/TIME) )) >/dev/null
+
+{% endif %}

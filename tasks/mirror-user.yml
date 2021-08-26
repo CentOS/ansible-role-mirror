@@ -13,9 +13,12 @@
 
 - name: Ensuring we have a place to store mirror content
   file:
-    path: "{{ mirror_local_path }}"
+    path: "{{ item }}"
     state: directory
     owner: "{{ mirror_local_user }}"
     group: "{{ mirror_local_user }}"
     setype: user_home_dir_t
     mode: 0755
+  with_items:
+    - "{{ mirror_local_path }}"
+    - "{{ mirror_stream_local_path }}"

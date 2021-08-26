@@ -1,12 +1,18 @@
 # default variables for mirror role
 
+# Is this also part of the new mirror cdn for 9-stream and beyond ?
+# If enabled, consider also the other mirror_stream_* variables that will be applied at various places too and in templates
+mirror_stream_content: True
+
 # Full rsync path::module to use to rsync centos mirror content from
 mirror_rsync_from: node1.centos.org
 mirror_rsync_from_module: centos-full
+mirror_stream_rsync_from_module: centos-stream-full
 mirror_rsync_from_fallback: node0.centos.org
 
 # default path where to sync content to
 mirror_local_path: /home/centos/
+mirror_stream_local_path: /home/centos-stream/
 
 # Default user owning all the files
 mirror_local_user: centos
@@ -26,14 +32,21 @@ mirror_httpd_rewrite_rules: |
   ReWriteRule "^/(?:altarch)/(.*)/isos/(.*)/(.*\.raw.xz)$" http://isoredirect.centos.org/altarch/$1/isos/$2/$3
   ReWriteRule "^/(?:altarch)/(.*)/isos/(.*)/$" http://isoredirect.centos.org/altarch/$1/isos/$2/
  
+mirror_stream_rewrite_rules: ""
+
 # Some message to be displayed on html pages
 mirror_httpd_header: |
   <div class="alert alert-success" role="alert">
-  This directory tree contains current CentOS Linux and Stream releases.<br>
+  This directory tree contains current CentOS Linux and Stream releases. (7,8 and 8-stream)<br>
   For archived content, see <a href="http://vault.centos.org">Vault mirror</a>.<br>
   For debuginfo packages, see <a href="http://debuginfo.centos.org">Debuginfo mirror</a>
   </div>
 
+mirror_stream_httpd_header: |
+  <div class="alert alert-success" role="alert">
+  This directory tree contains new CentOS Stream releases, starting from release '9-stream'<br>
+  For previous CentOS Linux and Stream releases (including and up to 8/8-stream), see <a href="http://mirror.centos.org">CentOS mirror</a>.<br>
+  </div>
 
 # Do we also want to become member of the msync network
 # So opening up rsyncd to oustide world to let them sync from us 
@@ -49,12 +62,14 @@ mirror_rsyncd_allow_from:
 # If so we just need to enable and declare public hostname (non centos.org)
 mirror_external_vhost: False
 mirror_external_hostname: centos-mirror.yourdomain.com
+mirror_stream_httpd_serveralias: "{{ inventory_hostname }}"
 
 # GPG symmetric key used to decrypt the file generated dynamically by mirror crawler for ACL rights
 # Obviously the wrong one in the default variables here for the role
 mirror_acl_gpg_key: eq6xVZ4bdpgtGfwnqvr4T0SK
 # Full path/URI to the .gpg files with ACLs
 mirror_acl_url: https://node99.centos.org/01_CentOS.conf.gpg
+mirror_stream_acl_url: https://node99.centos.org/02_CentOS-Stream.conf.gpg
 
 # Zabbix/monitoring part
 mirror_zabbix_templates:

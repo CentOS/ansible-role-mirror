@@ -11,6 +11,17 @@
   tags:
     - rsyncd
 
+- name: Dropping the rsyncd snippet for Stream mirror
+  template:
+    src: 03_centosstream.conf.j2
+    dest: /etc/rsyncd.d/03_centosstream.conf
+    mode: 0644
+  notify:
+    - rebuild_rsyncd
+  tags:
+    - rsyncd
+  when: mirror_stream_content  
+
 - name: Needed selinux booleans for rsyncd
   seboolean:
     name: rsync_export_all_ro

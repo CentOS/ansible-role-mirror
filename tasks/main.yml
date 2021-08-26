@@ -49,6 +49,40 @@
   tags:
     - cron
 
+# Specific block when mirror_stream_content is True, so starting from stream 9
+- block:
+    - name: Adding specific new stream vhost file
+      template:
+        src: 11_mirror_stream.conf.j2
+        dest: /etc/httpd/conf.d/11_mirror_stream.conf
+        mode: 0644
+      notify:
+        - reload_httpd
+      tags:
+        - httpd
+
+    - name: Creating CentOS default header
+      template:
+        src: stream-httpd-header.html.j2
+        dest: /var/www/centos-design/header-centos-mirror-stream.html
+        mode: 0644
+
+    - name: Script to gather Stream 9 mirror content
+      template:
+        src: rsync-stream-full.j2
+        dest: "/home/{{ mirror_local_user }}-scripts/rsync-stream-full"
+        mode: 0755
+
+    - name: Cron job to rsync Stream 9content from upstream node
+      cron:
+        name: "CentOS mirror.stream rsync job"
+        job: "/home/{{ mirror_local_user }}-scripts/rsync-stream-full {{ mirror_rsync_from }} > /dev/null 2>&1"
+        minute: "*/7"
+        user: "{{ mirror_local_user }}"
+      tags:
+        - cron
+  when: mirror_stream_content
+
 - include_tasks: rsyncd.yml
   when: mirror_rsyncd
   tags:

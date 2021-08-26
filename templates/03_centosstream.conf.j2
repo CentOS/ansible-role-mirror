@@ -1,0 +1,9 @@
+[centos-stream-full]
+	path = {{ mirror_stream_local_path }}
+	comment = The official CentOS Stream Mirror
+        exclude = FOOTER.html
+        list = no
+	hosts allow = {% for host in groups['hostgroup-role-mirror'] %}{{ hostvars[host].ip }} {% if hostvars[host].ipv6 is defined %}{{ hostvars[host].ipv6 }} {% endif %}{% endfor %}{% for ip in mirror_rsyncd_allow_from %}{{ ip }} {% endfor %}
+
+	hosts deny = *
+

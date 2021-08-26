@@ -1,0 +1,43 @@
+<VirtualHost *:80>
+ ServerAdmin webmaster@centos.org
+ ServerName mirror.stream.centos.org
+ ServerAlias {{ mirror_stream_httpd_serveralias }}
+ DocumentRoot {{ mirror_stream_local_path }}
+ CustomLog logs/mirror.stream.entos.org_access.log combined
+ ErrorLog logs/mirror.stream.centos.org_error.log
+ AddDescription "{{ inventory_hostname }}" server.id
+ ReadmeName /centos-design/footer.html
+ HeaderName /centos-design/header-centos-mirror-stream.html
+ IndexIgnore .??* *~ *# HEADER* README* RCS CVS *,v *,t FOOTER.html robots.txt
+
+ Header always set X-Xss-Protection "1; mode=block"
+ Header always set X-Content-Type-Options "nosniff"
+ Header always set Referrer-Policy "same-origin"
+ Header always set X-Frame-Options "SAMEORIGIN"
+
+{% if mirror_httpd_snippet is defined %}
+{{ mirror_httpd_snippet }}
+{% endif %}
+
+{% if mirror_stream_httpd_rewrite_rules is defined %}
+{{ mirror_httpd_rewrite_rules }}
+{% endif %}
+
+
+#Directory Permissions
+ <Directory "/home/centos-stream">
+  AllowOverride Indexes
+  Options Indexes FollowSymLinks 
+  <IfVersion < 2.4>
+    Order allow,deny
+    Allow from all
+  </IfVersion>
+  <IfVersion >= 2.4>
+    IndexOptions NameWidth=* +SuppressHTMLPreamble
+    IndexStyleSheet "/centos-design/css/centos-listindex.css"
+    Require all granted
+  </IfVersion>
+ </Directory>
+
+</VirtualHost>
+

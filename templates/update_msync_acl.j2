@@ -9,13 +9,14 @@
 
 PATH=$PATH:/usr/local/bin:/sbin:/usr/sbin/
 
-remote_gpg_file="{{ mirror_acl_url }}"
-remote_checksum_file="{{ mirror_acl_url }}.checksum"
-local_checksum_file="/var/tmp/01_CentOS.conf.gpg.checksum"
-new_checksum_file="/var/tmp/01_CentOS.conf.gpg.checksum.new"
-local_gpg_file="/var/tmp/01_CentOS.conf.gpg"
+{% if mirror_stream_content %}
+# We also have Stream content so importing both
+remote_gpg_files="{{ mirror_acl_url }} {{ mirror_stream_acl_url }}"
+{% else %}
+# Only mirroring legacy so only one here
+remote_gpg_files="{{ mirror_acl_url }}"
+{% endif %}
 gpg_passphrase="{{ mirror_acl_gpg_key }}"
-target_conf_file="/etc/rsyncd.d/01_CentOS.conf"
 log_file="/var/log/centos_update_acl.log"
 
 function f_log() {
@@ -27,29 +28,41 @@ function f_errorcheck() {
    f_log "$* : PASS => continuing ..."
  else
    f_log "$* : FAIL => exiting ..."
+   zabbix_sender -c /etc/zabbix/zabbix_agentd.conf -k msync.gpg.acl -o 1 >/dev/null
    exit 1
  fi
 }
 
+for url in ${remote_gpg_files} ; do
+  remote_checksum_file="${url}.checksum"
+  remote_file=$(echo $url|rev|cut -f 1 -d '/'|rev)
+  local_checksum_file="/var/tmp/${remote_file}.checksum"
+  new_checksum_file="/var/tmp/${remote_file}.checksum.new"
+  local_gpg_file="/var/tmp/${remote_file}"
+  target_conf_file="/etc/rsyncd.d/${remote_file/.gpg}"
 
-curl --location --silent --fail -H 'Cache-Control: no-cache' ${remote_checksum_file} -o ${new_checksum_file}
+  curl --location --silent --fail -H 'Cache-Control: no-cache' ${remote_checksum_file} -o ${new_checksum_file}
 
-f_errorcheck "Downloading ${remote_checksum_file}"
+  f_errorcheck "Downloading ${remote_checksum_file}"
 
-previous_checksum=$(awk '{print $1}' ${local_checksum_file})
-new_checksum=$(awk '{print $1}' ${new_checksum_file})
+  previous_checksum=$(awk '{print $1}' ${local_checksum_file})
+  new_checksum=$(awk '{print $1}' ${new_checksum_file})
 
-if [ "${new_checksum}" == "${previous_checksum}" ] ; then
-  f_log "checksum ${new_checksum} is the same as before ... exiting"
-else
-  /bin/rm ${local_gpg_file}
-  curl --silent --fail -H 'Cache-Control: no-cache' ${remote_gpg_file} -o ${local_gpg_file}
-  f_errorcheck "Downloading ${remote_gpg_file}"
-  test "$(sha256sum ${local_gpg_file}|awk '{print $1}')" == "${new_checksum}"
-  f_errorcheck "Verifying sha256sum for downloaded file ${local_gpg_file}"
-  gpg --passphrase ${gpg_passphrase} --batch --yes -d ${local_gpg_file} 2>/dev/null >${target_conf_file}
-  f_errorcheck "GPG decrypt operation for ${local_gpg_file}"
-  cat /etc/rsyncd.d/*.conf > /etc/rsyncd.conf
-  f_log "Writing ${new_checksum} as current checksum"
-  echo "${new_checksum}" > ${local_checksum_file}   
-fi
+  if [ "${new_checksum}" == "${previous_checksum}" ] ; then
+    f_log "checksum ${new_checksum} is the same as before ... exiting"
+  else
+    /bin/rm ${local_gpg_file}
+    curl --silent --fail -H 'Cache-Control: no-cache' ${url} -o ${local_gpg_file}
+    f_errorcheck "Downloading ${url}"
+    test "$(sha256sum ${local_gpg_file}|awk '{print $1}')" == "${new_checksum}"
+    f_errorcheck "Verifying sha256sum for downloaded file ${local_gpg_file}"
+    gpg --passphrase ${gpg_passphrase} --batch --yes --ignore-mdc-error -d ${local_gpg_file} 2>/dev/null >${target_conf_file}
+    f_errorcheck "GPG decrypt operation for ${local_gpg_file}"
+    cat /etc/rsyncd.d/*.conf > /etc/rsyncd.conf
+    f_log "Writing ${new_checksum} as current checksum"
+    echo "${new_checksum}" > ${local_checksum_file}   
+  fi
+done
+
+# Sending result for zabbix
+zabbix_sender -c /etc/zabbix/zabbix_agentd.conf -k msync.gpg.acl -o 0 >/dev/null

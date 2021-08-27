@@ -32,7 +32,7 @@ mirror_httpd_rewrite_rules: |
   ReWriteRule "^/(?:altarch)/(.*)/isos/(.*)/(.*\.raw.xz)$" http://isoredirect.centos.org/altarch/$1/isos/$2/$3
   ReWriteRule "^/(?:altarch)/(.*)/isos/(.*)/$" http://isoredirect.centos.org/altarch/$1/isos/$2/
  
-mirror_stream_rewrite_rules: ""
+mirror_stream_httpd_rewrite_rules: ""
 
 # Some message to be displayed on html pages
 mirror_httpd_header: |

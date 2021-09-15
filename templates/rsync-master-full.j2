@@ -10,12 +10,12 @@ do_rsync() {
 # Trying to reach rsync and if not working, using fallback upstream srv
 rsync $1::{{ mirror_rsync_from_module }}/ >/dev/null 2>&1 && export upstream_srv="$1" || export upstream_srv="{{ mirror_rsync_from_fallback }}"
 
-rsync --force --partial --exclude ".~tmp~" --exclude ".*iso.*" --exclude ".*.rpm.*" --exclude FOOTER.html --delay-updates --exclude repodata --exclude headers --timeout=2400 -avzH $upstream_srv::{{ mirror_rsync_from_module }}/ {{ mirror_local_path }}  > /home/{{ mirror_local_user }}-scripts/$SYNCTIME.log 2>&1
-rsync --force --partial --exclude ".~tmp~" --exclude ".*iso.*" --exclude ".*.rpm.*" --exclude FOOTER.html --delay-updates --delete --timeout=2400 -avzH $upstream_srv::{{ mirror_rsync_from_module }}/ {{ mirror_local_path }}  >> /home/{{ mirror_local_user }}-scripts/$SYNCTIME.log 2>&1
+rsync --force --partial --exclude ".~tmp~" --exclude ".*iso.*" --exclude ".*.rpm.*" --exclude FOOTER.html --delay-updates --exclude repodata --exclude headers --timeout=2400 -avzH $upstream_srv::{{ mirror_rsync_from_module }}/ {{ mirror_local_path }}  > /home/{{ mirror_local_user }}-scripts/centos-${SYNCTIME}.log 2>&1
+rsync --force --partial --exclude ".~tmp~" --exclude ".*iso.*" --exclude ".*.rpm.*" --exclude FOOTER.html --delay-updates --delete --timeout=2400 -avzH $upstream_srv::{{ mirror_rsync_from_module }}/ {{ mirror_local_path }}  >> /home/{{ mirror_local_user }}-scripts/centos-${SYNCTIME}.log 2>&1
 
-for log in $(ls *.log | egrep -v "withdvd|hardlink|vault|beta|debug")
+for log in $(ls *.log | egrep -v "withdvd|hardlink|vault|beta|debug|stream")
   do
-   if [ "$log" != "$SYNCTIME.log" ]; then
+   if [ "$log" != "centos-${SYNCTIME}.log" ]; then
     rm -f $log
    fi
   done

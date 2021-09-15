@@ -13,7 +13,7 @@ rsync $1::{{ mirror_stream_rsync_from_module }}/ >/dev/null 2>&1 && export upstr
 rsync --force --partial --exclude ".~tmp~" --exclude ".*iso.*" --exclude ".*.rpm.*" --exclude FOOTER.html --delay-updates --exclude repodata --exclude headers --timeout=2400 -avzH $upstream_srv::{{ mirror_stream_rsync_from_module }}/ {{ mirror_stream_local_path }}  > /home/{{ mirror_local_user }}-scripts/stream-${SYNCTIME}.log 2>&1
 rsync --force --partial --exclude ".~tmp~" --exclude ".*iso.*" --exclude ".*.rpm.*" --exclude FOOTER.html --delay-updates --delete --timeout=2400 -avzH $upstream_srv::{{ mirror_stream_rsync_from_module }}/ {{ mirror_stream_local_path }}  >> /home/{{ mirror_local_user }}-scripts/stream-${SYNCTIME}.log 2>&1
 
-for log in $(ls *.log | egrep -v "withdvd|hardlink|vault|beta|debug")
+for log in $(ls *.log | egrep -v "withdvd|hardlink|vault|beta|debug|centos")
   do
    if [ "$log" != "stream-${SYNCTIME}.log" ]; then
     rm -f $log

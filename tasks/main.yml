@@ -61,11 +61,13 @@
       tags:
         - httpd
 
-    - name: Creating CentOS default header
-      template:
-        src: stream-httpd-header.html.j2
-        dest: /var/www/centos-design/header-centos-mirror-stream.html
-        mode: 0644
+    - import_role:
+        name: httpd
+        tasks_from: custom-header
+      vars: 
+        - httpd_html_custom_header_title: "CentOS Stream Mirror"
+        - httpd_html_autoindex_title: "CentOS Stream Mirror"
+        - httpd_html_autoindex_content: "{{ mirror_stream_httpd_header }}"
 
     - name: Script to gather Stream 9 mirror content
       template:

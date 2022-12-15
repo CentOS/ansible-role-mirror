@@ -3,6 +3,7 @@
 - import_role:
     name: httpd
   vars:
+    httpd_tls: False
     httpd_html_autoindex_title: "CentOS Mirror"
     httpd_html_autoindex_content: "{{ mirror_httpd_header }}"
 
@@ -84,6 +85,31 @@
       tags:
         - cron
   when: mirror_stream_content
+
+# Specific block included only when node is origin for stream cdn
+- block:
+    - import_role:
+        name: httpd
+        tasks_from: tls
+
+    - import_role:
+        name: httpd
+        tasks_from: pki-tls
+      vars:
+        pki_hostname: "{{ mirror_stream_httpd_origin_hostname }}"
+      tags:
+        - tls
+
+    - name: Adding specific origin tls stream vhost file
+      template:
+        src: ssl-stream.conf.j2
+        dest: /etc/httpd/conf.d/ssl-stream.conf
+        mode: 0644
+      notify:
+        - reload_httpd
+      tags:
+        - httpd
+  when: mirror_stream_httpd_origin_node
 
 - include_tasks: rsyncd.yml
   when: mirror_rsyncd

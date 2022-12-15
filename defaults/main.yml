@@ -3,6 +3,12 @@
 # Is this also part of the new mirror cdn for 9-stream and beyond ?
 # If enabled, consider also the other mirror_stream_* variables that will be applied at various places too and in templates
 mirror_stream_content: True
+# CDN section, if used as origin server
+# Are we origin node (True|False) and if so, under which specific hostname
+mirror_stream_httpd_origin_node: False
+mirror_stream_httpd_origin_hostname:  # if used as origin, different hostname and different TLS cert too
+mirror_stream_httpd_origin_secret:    # Which shared header to use between cdn and us, origin server to restrict access
+
 
 # Full rsync path::module to use to rsync centos mirror content from
 mirror_rsync_from: node1.centos.org

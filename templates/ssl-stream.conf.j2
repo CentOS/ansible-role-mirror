@@ -1,0 +1,67 @@
+<VirtualHost *:443>
+ ServerAdmin webmaster@centos.org
+{% if mirror_stream_httpd_origin_node %}
+ ServerName {{ mirror_stream_httpd_origin_hostname }}
+{% else %}
+ ServerName mirror.stream.centos.org
+{% endif %}
+ DocumentRoot {{ mirror_stream_local_path }}
+ HeaderName /centos-design/header-centos-stream-mirror.html
+ IndexIgnore .??* *~ *# HEADER* README* RCS CVS *,v *,t FOOTER.html
+
+ Header always set Strict-Transport-Security "max-age=31536000"
+ Header always set X-Xss-Protection "1; mode=block"
+ Header always set X-Content-Type-Options "nosniff"
+ Header always set Referrer-Policy "same-origin"
+ Header always set X-Frame-Options "SAMEORIGIN"
+
+{% if mirror_stream_httpd_origin_node %}
+# Let's ensure that we'll deny request if secretheader shared with cdn upstream doesn't match
+RewriteEngine on
+RewriteCond %{HTTP:X-CDNSecretHeader} !^{{ mirror_stream_httpd_origin_secret }}$
+RewriteRule ^ - [F]
+{% endif %}
+
+#Directory Permissions
+ <Directory "{{ mirror_stream_local_path }}">
+  AllowOverride Indexes
+  Options Indexes FollowSymLinks 
+  <IfVersion < 2.4>
+    Order allow,deny
+    Allow from all
+  </IfVersion>
+  <IfVersion >= 2.4>
+    IndexOptions NameWidth=* 
+    IndexStyleSheet "/centos-design/css/centos-listindex.css"
+    Require all granted
+  </IfVersion>
+ </Directory>
+
+ErrorLog logs/ssl-{{ mirror_stream_httpd_origin_hostname }}_error.log
+TransferLog logs/ssl-{{ mirror_stream_httpd_origin_hostname }}_access.log
+LogLevel warn
+SSLEngine on
+{{ httpd_tls_ciphers }}
+
+{% if mirror_stream_httpd_origin_node %}
+SSLCertificateFile /etc/pki/tls/certs/{{ mirror_stream_httpd_origin_hostname }}.crt
+SSLCertificateKeyFile /etc/pki/tls/private/{{ mirror_stream_httpd_origin_hostname }}.key
+SSLCertificateChainFile /etc/pki/tls/certs/{{ mirror_stream_httpd_origin_hostname }}-CAChain.crt
+{% else %}
+SSLCertificateFile /etc/pki/tls/certs/mirror.stream.centos.org.crt
+SSLCertificateKeyFile /etc/pki/tls/private/mirror.stream.centos.org.key
+SSLCertificateChainFile /etc/pki/tls/certs/mirror.stream.centos.org-CAChain.crt
+{% endif %}
+
+<Files ~ "\.(cgi|shtml|phtml|php3?)$">
+    SSLOptions +StdEnvVars
+</Files>
+<Directory "/var/www/cgi-bin">
+    SSLOptions +StdEnvVars
+</Directory>
+SetEnvIf User-Agent ".*MSIE.*" \
+         nokeepalive ssl-unclean-shutdown \
+         downgrade-1.0 force-response-1.0
+CustomLog logs/ssl-{{ mirror_stream_httpd_origin_hostname }}_request.log \
+          "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+</VirtualHost> 

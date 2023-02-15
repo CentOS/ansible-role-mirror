@@ -35,10 +35,14 @@
   register: sepolicy
   with_items:
     - centos-msync-rsyncd.pp
+  when: ansible_distribution_major_version|int < 9
 
 - name: reload custom selinux files
   shell: /usr/sbin/semodule -u "/etc/selinux/centos/centos-msync-rsyncd.pp"
-  when: ansible_selinux.status == "enabled" and sepolicy.changed
+  when: 
+    - ansible_selinux.status == "enabled" 
+    - sepolicy is defined
+    - sepolicy is changed
 
 - name: ACL update script for the allowed external mirrors (ipv4/ipv6)
   template:

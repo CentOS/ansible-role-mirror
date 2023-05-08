@@ -2,6 +2,7 @@
  ServerAdmin webmaster@centos.org
 {% if mirror_stream_httpd_origin_node %}
  ServerName {{ mirror_stream_httpd_origin_hostname }}
+ ServerAlias mirror.stream.centos.org
 {% else %}
  ServerName mirror.stream.centos.org
 {% endif %}

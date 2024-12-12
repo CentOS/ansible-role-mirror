@@ -25,7 +25,13 @@
   when: mirror_external_vhost  
   notify:
     - reload_httpd
- 
+
+- import_role:
+    name: httpd
+    tasks_from: custom-header
+  vars: 
+    - httpd_custom_header_page: "{{ mirror_header_page }}"
+
 - name: Ensuring some selinux booleans are enabled
   seboolean:
     name: "{{ item }}"
@@ -66,9 +72,7 @@
         name: httpd
         tasks_from: custom-header
       vars: 
-        - httpd_html_custom_header_title: "CentOS Stream Mirror"
-        - httpd_html_autoindex_title: "CentOS Stream Mirror"
-        - httpd_html_autoindex_content: "{{ mirror_stream_httpd_header }}"
+        - httpd_custom_header_page: "{{ mirror_stream_header_page }}"
 
     - name: Script to gather Stream 9 mirror content
       template:

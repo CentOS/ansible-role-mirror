@@ -41,18 +41,29 @@ mirror_httpd_rewrite_rules: |
 mirror_stream_httpd_rewrite_rules: ""
 
 # Some message to be displayed on html pages
-mirror_httpd_header: |
-  <div class="alert alert-success" role="alert">
-  This directory tree contains current CentOS Linux and Stream releases. (7,8 and 8-stream)<br>
-  For archived content, see <a href="http://vault.centos.org">Vault mirror</a>.<br>
-  For debuginfo packages, see <a href="http://debuginfo.centos.org">Debuginfo mirror</a>
-  </div>
+mirror_header_page:
+  title: 'CentOS Mirror'
+  title_lead: ''
+  with_manifestation: 'CentOS Mirror'
+  with_content:
+    - element: p
+      element_class: alert alert-warning
+      element_content: >-
+        This directory tree doesn't contain any supported/maintained release ! <br>
+        For CentOS Stream 9 and beyond (including src.rpm and debuginfo packages), see <a href="http://mirror.stream.centos.org">CentOS Stream mirror</a>.<br>
+        For archived content from EOL releases, see <a href="http://vault.centos.org">Vault mirror</a> and <a href="http://debuginfo.centos.org">Debuginfo mirror</a>
 
-mirror_stream_httpd_header: |
-  <div class="alert alert-success" role="alert">
-  This directory tree contains new CentOS Stream releases, starting from release '9-stream'<br>
-  For previous CentOS Linux and Stream releases (including and up to 8/8-stream), see <a href="http://mirror.centos.org">CentOS mirror</a>.<br>
-  </div>
+mirror_stream_header_page:
+  title: 'CentOS Stream Mirror'
+  title_lead: ''
+  with_manifestation: ''
+  with_content:
+    - element: p
+      element_class: alert alert-success
+      element_content: >-
+        This directory tree contains new CentOS Stream releases, starting from release '9-stream'<br>
+        For previous CentOS Linux releases , see <a href="http://mirror.centos.org">CentOS mirror</a>.<br>
+
 
 # Do we also want to become member of the msync network
 # So opening up rsyncd to oustide world to let them sync from us 

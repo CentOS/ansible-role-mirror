@@ -1,7 +1,6 @@
 <VirtualHost *:80>
  ServerAdmin webmaster@centos.org
  ServerName mirror.centos.org
- ServerAlias {{ inventory_hostname }}
  DocumentRoot {{ mirror_local_path }}
  CustomLog logs/mirror.centos.org_access.log combined
  ErrorLog logs/mirror.centos.org_error.log
